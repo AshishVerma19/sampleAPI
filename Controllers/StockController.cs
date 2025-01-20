@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using sampleAPI.Dto;
 using sampleAPI.Data;
 using sampleAPI.Models;
+using sampleAPI.Mapper;
 
 namespace sampleAPI.Controllers;
 
@@ -19,14 +21,14 @@ public class StockController : ControllerBase
     [HttpGet]
     public IActionResult GetAll()
     {
-        var stock = _context.Stock.ToList();
+        var stock = _context.Stock.ToList().Select(s => s.ToStockDto());
         return Ok(stock);
     }
 
     [HttpGet("{id}")]
     public IActionResult GetById([FromRoute] int id)
     {
-        var stock = _context.Stock.Find(id);
+        var stock = _context.Stock.Find(id)?.ToStockDto();
         if (stock == null)
         {
             return NotFound();

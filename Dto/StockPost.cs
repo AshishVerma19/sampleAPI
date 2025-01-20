@@ -1,11 +1,14 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace sampleAPI.Models;
+namespace sampleAPI.Dto;
 
 public class StockPost
 {
+    [Required]
     public string Symbol { get; set; } = string.Empty;
 
+    [Required]
     public string CompanyName { get; set; } = string.Empty;
 
     public decimal Purchase { get; set; }
