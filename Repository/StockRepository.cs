@@ -34,9 +34,9 @@ public class StockRepository : IStockRepository
         return stock;
     }
 
-    public Task<List<Stock>> GetAllAsync()
+    public async Task<List<Stock>> GetAllAsync()
     {
-        return _context.Stock.ToListAsync();
+        return await _context.Stock.ToListAsync();
     }
 
     public async Task<Stock?> GetByIdAsync(int id)
