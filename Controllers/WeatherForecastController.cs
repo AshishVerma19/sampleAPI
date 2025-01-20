@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using sampleAPI.Models;
 
 namespace sampleAPI.Controllers;
 
