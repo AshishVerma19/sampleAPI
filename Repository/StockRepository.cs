@@ -1,6 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using sampleAPI.Data;
+using sampleAPI.Dto;
 using sampleAPI.interfaces;
 using sampleAPI.Models;
 
@@ -13,8 +14,52 @@ public class StockRepository : IStockRepository
     {
         _context = context;
     }
+
+    public async Task<Stock> CreateAsync(Stock stockModal)
+    {
+        await _context.Stock.AddAsync(stockModal);
+        await _context.SaveChangesAsync();
+        return stockModal;
+    }
+
+    public async Task<Stock?> DeleteAsync(int id)
+    {
+        var stock = await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
+        if (stock == null)
+        {
+            return null;
+        }
+        _context.Stock.Remove(stock);
+        await _context.SaveChangesAsync();
+        return stock;
+    }
+
     public Task<List<Stock>> GetAllAsync()
     {
         return _context.Stock.ToListAsync();
     }
+
+    public async Task<Stock?> GetByIdAsync(int id)
+    {
+        return await _context.Stock.FindAsync(id);
+    }
+
+    public async Task<Stock?> UpdateAsync(int id, StockPut stockModal)
+    {
+        var stock = await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
+        if (stock == null)
+        {
+            return null;
+        }
+        stock.Symbol = stockModal.Symbol;
+        stock.CompanyName = stockModal.CompanyName;
+        stock.Industry = stockModal.Industry;
+        stock.LastDiv = stockModal.LastDiv;
+        stock.MarkedCap = stockModal.MarkedCap;
+        stock.Purchase = stockModal.Purchase;
+
+        await _context.SaveChangesAsync();
+        return stock;
+    }
+
 }

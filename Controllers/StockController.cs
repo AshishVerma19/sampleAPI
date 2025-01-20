@@ -14,11 +14,9 @@ namespace sampleAPI.Controllers;
 [ApiController]
 public class StockController : ControllerBase
 {
-    private readonly ApplicationDbContext _context;
     private readonly IStockRepository _stockService;
-    public StockController(ApplicationDbContext context, IStockRepository stockRepository)
+    public StockController(IStockRepository stockRepository)
     {
-        _context = context;
         _stockService = stockRepository;
     }
 
@@ -34,7 +32,7 @@ public class StockController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        var stock = await _context.Stock.FindAsync(id);
+        var stock = await _stockService.GetByIdAsync(id);
         if (stock == null)
         {
             return NotFound();
@@ -54,8 +52,7 @@ public class StockController : ControllerBase
             }
 
             var newStock = stock.ToStockPost();
-            await _context.Stock.AddAsync(newStock);
-            await _context.SaveChangesAsync();
+            await _stockService.CreateAsync(newStock);
             return CreatedAtAction(nameof(GetById), new { id = newStock.Id }, newStock.ToStockDto());
         }
         catch (Exception ex)
@@ -70,19 +67,11 @@ public class StockController : ControllerBase
     {
         try
         {
-            var stock = await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
+            var stock = await _stockService.UpdateAsync(id, stockPost);
             if (stock == null)
             {
-                return NotFound("stock id not found");
+                return NotFound("stock not found");
             }
-            stock.Symbol = stockPost.Symbol;
-            stock.CompanyName = stockPost.CompanyName;
-            stock.Industry = stockPost.Industry;
-            stock.LastDiv = stockPost.LastDiv;
-            stock.MarkedCap = stockPost.MarkedCap;
-            stock.Purchase = stockPost.Purchase;
-
-            await _context.SaveChangesAsync();
             return Ok(stock.ToStockDto());
         }
         catch (Exception ex)
@@ -94,14 +83,7 @@ public class StockController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteStock([FromRoute] int id)
     {
-        var stock = await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
-        if (stock == null)
-        {
-            return NotFound();
-        }
-        _context.Stock.Remove(stock);
-
-        await _context.SaveChangesAsync();
+        await _stockService.DeleteAsync(id);
 
         return NoContent();
     }
