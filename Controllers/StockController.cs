@@ -46,19 +46,11 @@ public class StockController : ControllerBase
             {
                 return BadRequest("incorrect data");
             }
-            var stockDetails = new Stock()
-            {
-                CompanyName = stock.CompanyName,
-                Industry = stock.Industry,
-                LastDiv = stock.LastDiv,
-                Symbol = stock.Symbol,
-                Purchase = stock.Purchase,
-                MarkedCap = stock.MarkedCap,
-            };
 
-            var newStock = _context.Stock.Add(stockDetails);
+            var newStock = stock.ToStockPost();
+            _context.Stock.Add(newStock);
             _context.SaveChanges();
-            return Ok("stock created");
+            return CreatedAtAction(nameof(GetById), new { id = newStock.Id }, newStock.ToStockDto());
         }
         catch (Exception ex)
         {
@@ -66,4 +58,47 @@ public class StockController : ControllerBase
         }
 
     }
+
+    [HttpPut("{id}")]
+    public IActionResult PutStock([FromRoute] int id, [FromBody] StockPut stockPost)
+    {
+        try
+        {
+            var stock = _context.Stock.FirstOrDefault(x => x.Id == id);
+            if (stock == null)
+            {
+                return NotFound("stock id not found");
+            }
+            stock.Symbol = stockPost.Symbol;
+            stock.CompanyName = stockPost.CompanyName;
+            stock.Industry = stockPost.Industry;
+            stock.LastDiv = stockPost.LastDiv;
+            stock.MarkedCap = stockPost.MarkedCap;
+            stock.Purchase = stockPost.Purchase;
+
+            _context.SaveChanges();
+            return Ok(stock.ToStockDto());
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
+    [HttpDelete("{id}")]
+    public IActionResult DeleteStock([FromRoute] int id)
+    {
+        var stock = _context.Stock.FirstOrDefault(x => x.Id == id);
+        if (stock == null)
+        {
+            return NotFound();
+        }
+        _context.Stock.Remove(stock);
+
+        _context.SaveChanges();
+
+        return NoContent();
+    }
+
 }
+

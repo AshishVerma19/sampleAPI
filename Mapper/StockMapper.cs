@@ -20,4 +20,19 @@ public static class StockMapper
         };
         return stockDto;
     }
+
+    public static Stock ToStockPost(this StockPost stockPost)
+    {
+        var stock = new Stock()
+        {
+            CompanyName = stockPost.CompanyName,
+            Industry = stockPost.Industry,
+            LastDiv = stockPost.LastDiv,
+            Symbol = stockPost.Symbol,
+            Purchase = stockPost.Purchase,
+            MarkedCap = stockPost.MarkedCap,
+        };
+
+        return stock;
+    }
 }
