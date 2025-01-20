@@ -5,6 +5,7 @@ using sampleAPI.Dto;
 using sampleAPI.Data;
 using sampleAPI.Models;
 using sampleAPI.Mapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace sampleAPI.Controllers;
 
@@ -19,26 +20,28 @@ public class StockController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var stock = _context.Stock.ToList().Select(s => s.ToStockDto());
-        return Ok(stock);
+        var stock = await _context.Stock.ToListAsync();
+        var stockDto = stock.Select(s => s.ToStockDto());
+
+        return Ok(stockDto);
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetById([FromRoute] int id)
+    public async Task<IActionResult> GetById([FromRoute] int id)
     {
-        var stock = _context.Stock.Find(id)?.ToStockDto();
+        var stock = await _context.Stock.FindAsync(id);
         if (stock == null)
         {
             return NotFound();
         }
 
-        return Ok(stock);
+        return Ok(stock?.ToStockDto());
     }
 
     [HttpPost]
-    public IActionResult PostStock([FromBody] StockPost stock)
+    public async Task<IActionResult> PostStock([FromBody] StockPost stock)
     {
         try
         {
@@ -48,8 +51,8 @@ public class StockController : ControllerBase
             }
 
             var newStock = stock.ToStockPost();
-            _context.Stock.Add(newStock);
-            _context.SaveChanges();
+            await _context.Stock.AddAsync(newStock);
+            await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetById), new { id = newStock.Id }, newStock.ToStockDto());
         }
         catch (Exception ex)
@@ -60,11 +63,11 @@ public class StockController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult PutStock([FromRoute] int id, [FromBody] StockPut stockPost)
+    public async Task<IActionResult> PutStock([FromRoute] int id, [FromBody] StockPut stockPost)
     {
         try
         {
-            var stock = _context.Stock.FirstOrDefault(x => x.Id == id);
+            var stock = await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
             if (stock == null)
             {
                 return NotFound("stock id not found");
@@ -76,7 +79,7 @@ public class StockController : ControllerBase
             stock.MarkedCap = stockPost.MarkedCap;
             stock.Purchase = stockPost.Purchase;
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return Ok(stock.ToStockDto());
         }
         catch (Exception ex)
@@ -86,16 +89,16 @@ public class StockController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public IActionResult DeleteStock([FromRoute] int id)
+    public async Task<IActionResult> DeleteStock([FromRoute] int id)
     {
-        var stock = _context.Stock.FirstOrDefault(x => x.Id == id);
+        var stock = await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);
         if (stock == null)
         {
             return NotFound();
         }
         _context.Stock.Remove(stock);
 
-        _context.SaveChanges();
+        await _context.SaveChangesAsync();
 
         return NoContent();
     }
