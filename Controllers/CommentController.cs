@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using sampleAPI.interfaces;
 using sampleAPI.Mapper;
+using sampleAPI.Dto;
 
 namespace sampleAPI.Controllers
 {
@@ -10,9 +11,12 @@ namespace sampleAPI.Controllers
     public class CommentController : ControllerBase
     {
         private readonly ICommentRepository _commentRepository;
-        public CommentController(ICommentRepository commentRepository)
+        private readonly IStockRepository _stockRepository;
+
+        public CommentController(ICommentRepository commentRepository, IStockRepository stockRepository)
         {
             _commentRepository = commentRepository;
+            _stockRepository = stockRepository;
         }
 
         [HttpGet]
@@ -32,6 +36,19 @@ namespace sampleAPI.Controllers
                 return NotFound();
             }
             return Ok(comment.ToCommentDto());
+        }
+
+        [HttpPost("{stockId}")]
+        public async Task<IActionResult> PostComment([FromRoute] int stockId, [FromBody] CommentPost comment)
+        {
+            var stock = await _stockRepository.StockExist(stockId);
+            if (!stock)
+            {
+                return BadRequest("Stock id is not valid");
+            }
+            var commentVale = comment.ToCommentFromPost(stockId);
+            var commentRes = await _commentRepository.CreateCommentAsync(commentVale);
+            return CreatedAtAction(nameof(GetById), new { id = commentRes.Id }, commentRes);
         }
     }
 }

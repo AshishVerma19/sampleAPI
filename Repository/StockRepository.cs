@@ -44,6 +44,11 @@ public class StockRepository : IStockRepository
         return await _context.Stock.Include(c => c.Comments).FirstOrDefaultAsync(s => s.Id == id);
     }
 
+    public Task<bool> StockExist(int id)
+    {
+        return _context.Stock.AnyAsync(x => x.Id == id);
+    }
+
     public async Task<Stock?> UpdateAsync(int id, StockPut stockModal)
     {
         var stock = await _context.Stock.FirstOrDefaultAsync(x => x.Id == id);

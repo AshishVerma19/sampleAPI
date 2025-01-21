@@ -17,4 +17,15 @@ public static class CommentMapper
             Title = comment.Title,
         };
     }
+
+    public static Comment ToCommentFromPost(this CommentPost comment, int stockId)
+    {
+        return new Comment
+        {
+            Content = comment.Content,
+            CreatedOn = DateTime.Now,
+            StockId = stockId,
+            Title = comment.Title,
+        };
+    }
 }
