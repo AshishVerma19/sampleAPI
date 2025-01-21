@@ -17,6 +17,7 @@ public static class StockMapper
             MarkedCap = stockModel.MarkedCap,
             Purchase = stockModel.Purchase,
             Symbol = stockModel.Symbol,
+            Comments = stockModel.Comments.Select(c => c.ToCommentDto()).ToList(),
         };
         return stockDto;
     }

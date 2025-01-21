@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using sampleAPI.Data;
 using sampleAPI.interfaces;
 using sampleAPI.Repository;
@@ -8,7 +9,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services
+.AddControllers()
+.AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+});
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
