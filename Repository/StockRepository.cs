@@ -2,6 +2,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using sampleAPI.Data;
 using sampleAPI.Dto;
+using sampleAPI.Helpers;
 using sampleAPI.interfaces;
 using sampleAPI.Models;
 
@@ -34,9 +35,27 @@ public class StockRepository : IStockRepository
         return stock;
     }
 
-    public async Task<List<Stock>> GetAllAsync()
+    public async Task<List<Stock>> GetAllAsync(QueryObject query)
     {
-        return await _context.Stock.Include(c => c.Comments).ToListAsync();
+        var stocks = _context.Stock.Include(c => c.Comments).AsQueryable();
+        if (!string.IsNullOrEmpty(query.CompanyName))
+        {
+            stocks = stocks.Where(s => s.CompanyName.ToLower().Contains(query.CompanyName.ToLower()));
+        }
+        if (!string.IsNullOrEmpty(query.Symbol))
+        {
+            stocks = stocks.Where(s => s.Symbol.ToLower().Contains(query.Symbol.ToLower()));
+        }
+        if (!string.IsNullOrWhiteSpace(query.SortBy))
+        {
+            if (query.SortBy.Equals("Symbol", StringComparison.OrdinalIgnoreCase))
+            {
+                stocks = query.IsDescending ? stocks.OrderByDescending(s => s.Symbol) : stocks.OrderBy(s => s.Symbol);
+            }
+        }
+        int skipNumber = (query.PageNumber - 1) * query.PageSize;
+        stocks = stocks.Skip(skipNumber).Take(query.PageSize);
+        return await stocks.ToListAsync();
     }
 
     public async Task<Stock?> GetByIdAsync(int id)

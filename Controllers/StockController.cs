@@ -1,12 +1,8 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using sampleAPI.Dto;
-using sampleAPI.Data;
-using sampleAPI.Models;
 using sampleAPI.Mapper;
-using Microsoft.EntityFrameworkCore;
 using sampleAPI.interfaces;
+using sampleAPI.Helpers;
 
 namespace sampleAPI.Controllers;
 
@@ -21,9 +17,13 @@ public class StockController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] QueryObject query)
     {
-        var stock = await _stockService.GetAllAsync();
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+        var stock = await _stockService.GetAllAsync(query);
         var stockDto = stock.Select(s => s.ToStockDto());
 
         return Ok(stockDto);
