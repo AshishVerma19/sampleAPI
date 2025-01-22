@@ -50,5 +50,26 @@ namespace sampleAPI.Controllers
             var commentRes = await _commentRepository.CreateCommentAsync(commentVale);
             return CreatedAtAction(nameof(GetById), new { id = commentRes.Id }, commentRes);
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutComment([FromRoute] int id, [FromBody] CommentPost commentModal)
+        {
+            var comment = await _commentRepository.UpdateCommentAsync(id, commentModal);
+            if (comment == null)
+            {
+                return BadRequest("comment id not found");
+            }
+            return Ok(comment.ToCommentDto());
+        }
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteComment([FromRoute] int id)
+        {
+            var comment = await _commentRepository.DeleteAsync(id);
+            if (comment == null)
+            {
+                BadRequest($"Comment with not {id} found");
+            }
+            return NoContent();
+        }
     }
 }
