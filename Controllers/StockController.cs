@@ -29,9 +29,13 @@ public class StockController : ControllerBase
         return Ok(stockDto);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById([FromRoute] int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         var stock = await _stockService.GetByIdAsync(id);
         if (stock == null)
         {
@@ -46,6 +50,10 @@ public class StockController : ControllerBase
     {
         try
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             if (stock == null)
             {
                 return BadRequest("incorrect data");
@@ -62,11 +70,15 @@ public class StockController : ControllerBase
 
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<IActionResult> PutStock([FromRoute] int id, [FromBody] StockPut stockPost)
     {
         try
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var stock = await _stockService.UpdateAsync(id, stockPost);
             if (stock == null)
             {
@@ -80,9 +92,13 @@ public class StockController : ControllerBase
         }
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<IActionResult> DeleteStock([FromRoute] int id)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
         await _stockService.DeleteAsync(id);
 
         return NoContent();
