@@ -3,11 +3,13 @@ using sampleAPI.Dto;
 using sampleAPI.Mapper;
 using sampleAPI.interfaces;
 using sampleAPI.Helpers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace sampleAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class StockController : ControllerBase
 {
     private readonly IStockRepository _stockService;
