@@ -8,6 +8,7 @@ using sampleAPI.Data;
 using sampleAPI.interfaces;
 using sampleAPI.Models;
 using sampleAPI.Repository;
+using sampleAPI.Service;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -60,6 +61,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddScoped<IStockRepository, StockRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
